@@ -1,130 +1,54 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+
+import BookListPage from "./pages/BookListPage";
+import BookDetailPage from "./pages/BookDetailPage";
+import BookCreatePage from "./pages/BookCreatePage";
+import BookEditPage from "./pages/BookEditPage";
+
 function App() {
   return (
-    <div style={{ padding: "30px" }}>
-      <h1>작가의 산책</h1>
-
-      <h2>도서 목록</h2>
-
-      {/* 가로 스크롤 영역 */}
+    <BrowserRouter>
       <div
         style={{
+          minHeight: "100vh",
           display: "flex",
-          gap: "20px",
-          overflowX: "scroll",
-          paddingBottom: "20px",
+          flexDirection: "column",
         }}
       >
-        {/* 첫 번째 카드 */}
-        <div
+        <Navbar />
+
+        <main
           style={{
-            minWidth: "250px",
-            border: "1px solid lightgray",
-            borderRadius: "10px",
-            padding: "20px",
+            flex: 1,
+            padding: "32px 40px",
           }}
         >
-          {/* no image */}
-          <div
-            style={{
-              width: "100%",
-              height: "250px",
-              backgroundColor: "#f1f1f1",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginBottom: "15px",
-              borderRadius: "8px",
-              color: "gray",
-              fontWeight: "bold",
-            }}
-          >
-            NO IMAGE
-          </div>
+          <Routes>
+            <Route path="/" element={<BookListPage />} />
 
-          <h3>어린 왕자</h3>
+            <Route
+              path="/books-db/new"
+              element={<BookCreatePage />}
+            />
 
-          <p>저자 : 생텍쥐페리</p>
+            <Route
+              path="/books-db/:id"
+              element={<BookDetailPage />}
+            />
 
-          <p>어른들을 위한 따뜻한 이야기</p>
+            <Route
+              path="/books-db/:id/edit"
+              element={<BookEditPage />}
+            />
+          </Routes>
+        </main>
 
-          <button>상세보기</button>
-        </div>
-
-        {/* 두 번째 카드 */}
-        <div
-          style={{
-            minWidth: "250px",
-            border: "1px solid lightgray",
-            borderRadius: "10px",
-            padding: "20px",
-          }}
-        >
-          <div
-            style={{
-              width: "100%",
-              height: "250px",
-              backgroundColor: "#f1f1f1",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginBottom: "15px",
-              borderRadius: "8px",
-              color: "gray",
-              fontWeight: "bold",
-            }}
-          >
-            NO IMAGE
-          </div>
-
-          <h3>데미안</h3>
-
-          <p>저자 : 헤르만 헤세</p>
-
-          <p>자아를 찾아가는 성장 이야기</p>
-
-          <button>상세보기</button>
-        </div>
-
-        {/* 세 번째 카드 */}
-        <div
-          style={{
-            minWidth: "250px",
-            border: "1px solid lightgray",
-            borderRadius: "10px",
-            padding: "20px",
-          }}
-        >
-          <div
-            style={{
-              width: "100%",
-              height: "250px",
-              backgroundColor: "#f1f1f1",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginBottom: "15px",
-              borderRadius: "8px",
-              color: "gray",
-              fontWeight: "bold",
-            }}
-          >
-            NO IMAGE
-          </div>
-
-          <h3>죄와 벌</h3>
-
-          <p>저자 : 도스토예프스키</p>
-
-          <p>인간의 죄와 양심을 다룬 소설</p>
-
-          <button>상세보기</button>
-        </div>
+        <Footer />
       </div>
-
-      <footer style={{ marginTop: "40px" }}>
-        작가의 산책 ©2026 Team 9
-      </footer>
-    </div>
+    </BrowserRouter>
   );
 }
 
