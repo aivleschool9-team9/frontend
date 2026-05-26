@@ -1,60 +1,31 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
 
 function Navbar() {
-  const [darkMode, setDarkMode] = useState(false);
-
   return (
     <header
       style={{
         width: "100%",
-        marginBottom: "40px",
+        borderBottom: "1px solid #ddd",
+        padding: "20px 30px",
+        boxSizing: "border-box",
       }}
     >
       <div
         style={{
-          width: "100%",
-          border: "2px solid #ccc",
-          borderRadius: "999px",
-          padding: "14px 24px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          backgroundColor: darkMode ? "#222" : "#fff",
+          position: "relative",
         }}
       >
-        {/* 왼쪽 토글 */}
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          style={{
-            width: "70px",
-            height: "36px",
-            borderRadius: "999px",
-            border: "none",
-            backgroundColor: darkMode ? "#444" : "#ddd",
-            position: "relative",
-            cursor: "pointer",
-          }}
-        >
-          <div
-            style={{
-              width: "28px",
-              height: "28px",
-              borderRadius: "50%",
-              backgroundColor: "white",
-              position: "absolute",
-              top: "4px",
-              left: darkMode ? "38px" : "4px",
-              transition: "0.3s",
-            }}
-          />
-        </button>
-
-        {/* 가운데 로고 */}
+        {/* 가운데 제목 */}
         <h2
           style={{
+            position: "absolute",
+            left: "50%",
+            transform: "translateX(-50%)",
             margin: 0,
-            color: darkMode ? "white" : "black",
+            pointerEvents: "none",
           }}
         >
           작가의 산책
@@ -63,6 +34,7 @@ function Navbar() {
         {/* 오른쪽 버튼 */}
         <div
           style={{
+            marginLeft: "auto",
             display: "flex",
             gap: "12px",
           }}
