@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createBook, updateBookCover } from "../api/books";
 import { fetchAiCover } from "../api/openai";
 import useFormValidation from "../hooks/useFormValidation";
+import { useNavigate } from "react-router-dom";
 
 const styles = {
   container: {
@@ -48,6 +49,7 @@ const styles = {
 };
 
 function BookCreatePage() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     title: "",
     author: "",
@@ -104,6 +106,7 @@ function BookCreatePage() {
       coverImageUrl: "",
     });
     alert("등록이 완료되었습니다!");
+    navigate("/");
   };
 
   const handleAIGenerate = async () => {
