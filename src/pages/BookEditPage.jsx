@@ -124,7 +124,7 @@ function BookEditPage() {
   };
 
   if (loading) {
-    return <div>로딩 중...</div>;
+    return <div>로딩중</div>;
   }
   if (error) {
     return <div>{error}</div>;
@@ -133,10 +133,100 @@ function BookEditPage() {
 
 
   
+
+
+
   return (
     <div>
-      <h1>Book Edit Page</h1>
+      <h1>도서 수정</h1>
+
+      <form onSubmit = {handleSubmit}>
+        <div>
+          <label>제목</label>
+          <br/>
+
+          <input
+            type = "text"
+            name = "title"
+            value = {book.title}
+            onChange = {handleChange}
+          />
+        </div>
+        <br/>
+
+        <div>
+          <label>저자</label>
+          <br/>
+
+          <input
+            type="text"
+            name="author"
+            value={book.author}
+            onChange={handleChange}
+          />
+        </div>
+        <br/>
+
+        <div>
+          <label>한줄 요약</label>
+          <br />
+
+          <textarea
+            name="summary"
+            value={book.summary}
+            onChange={handleChange}
+          />
+        </div>
+        <br/>
+
+        <div>
+          <label>내용</label>
+          <br />
+
+          <textarea
+            name="content"
+            value={book.content}
+            onChange={handleChange}
+          />
+        </div>
+        <br/>
+
+        <div>
+          <label>표지 이미지 URL</label>
+          <br/>
+
+          <input
+            type="text"
+            name="coverImageUrl"
+            value={book.coverImageUrl}
+            onChange={handleChange}
+          />
+        </div>
+        <br/>
+
+        {book.coverImageUrl && (
+          <div>
+            <img
+              src={book.coverImageUrl}
+              alt="표지 미리보기"
+              width="200"
+            />
+          </div>
+        )}
+        <br/>
+
+        <button type="submit">
+          저장
+        </button>
+
+        <button type="button" onClick={handleCancel}>
+          취소
+        </button>
+      </form>
     </div>
+
+
+
   );
 } 
 
