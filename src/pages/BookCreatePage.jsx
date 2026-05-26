@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createBook, updateBookCover } from "../api/books";
-import { fetchAiCover } from "../api/openai";
+import { fetchAiCover, fetchAiCopyAndTags } from "../api/openai";
 import useFormValidation from "../hooks/useFormValidation";
 import { useNavigate } from "react-router-dom";
 
@@ -74,6 +74,8 @@ function BookCreatePage() {
     author: "",
     summary: "",
     content: "",
+    copy: "",
+    tags: [],
     coverImageUrl: "",
   });
 
@@ -81,6 +83,7 @@ function BookCreatePage() {
   const [previewImage, setPreviewImage] = useState("");
   const [loading, setLoading] = useState(false);
   const { errors, validate, clearError } = useFormValidation();
+  const [copyLoading, setCopyLoading] = useState(false);
 
   const isFormValid =
     form.title.trim() &&
@@ -107,6 +110,8 @@ function BookCreatePage() {
       author: form.author,
       summary: form.summary,
       content: form.content,
+      copy: form.copy,
+      tags: form.tags,
       coverImageUrl: "",
       createdAt: now,
       updatedAt: now,
@@ -128,6 +133,7 @@ function BookCreatePage() {
     navigate("/");
   };
 
+  // AI 표지 생성 핸들러
   const handleAIGenerate = async () => {
     if (!form.content.trim()) {
       alert("본문 내용을 먼저 입력해주세요!");
@@ -146,6 +152,24 @@ function BookCreatePage() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // AI 카피 및 태그 생성 핸들러
+  const handleAICopyAndTags = async () => {
+    if (!form.title.trim() || !form.content.trim()) {
+      alert("제목과 본문 내용을 먼저 입력해주세요!");
+      return;
+    }
+    try {
+      setCopyLoading(true);
+      const result = await fetchAiCopyAndTags(form.title, form.content);
+      setForm({ ...form, copy: result.copy, tags: result.tags });
+    } catch (err) {
+      alert("생성에 실패했습니다.");
+      console.error(err);
+    } finally {
+      setCopyLoading(false);
     }
   };
 
@@ -238,7 +262,94 @@ function BookCreatePage() {
 
         <hr style={{ border: "none", borderTop: "1px solid #eee" }} />
 
-        {/* AI 표지 생성 토글 */}
+        <div style={styles.fieldWrap}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <label>
+              한줄 카피 <span style={{ color: "#e55" }}>*</span>
+            </label>
+            <button
+              type='button'
+              onClick={handleAICopyAndTags}
+              disabled={copyLoading}
+              style={{
+                fontSize: "12px",
+                padding: "4px 10px",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+                background: "#fff",
+                cursor: copyLoading ? "not-allowed" : "pointer",
+                color: "#7c3aed",
+              }}
+            >
+              {copyLoading ? "생성 중..." : "AI 생성"}
+            </button>
+          </div>
+          <input
+            name='copy'
+            value={form.copy}
+            onChange={handleChange}
+            placeholder='한줄 카피를 입력하거나 AI로 생성하세요'
+            style={{
+              ...styles.input,
+              borderColor: errors.copy ? "#e55" : "#ddd",
+            }}
+          />
+        </div>
+
+        <div style={styles.fieldWrap}>
+          <label>태그</label>
+          <div
+            style={{
+              display: "flex",
+              gap: "6px",
+              flexWrap: "wrap",
+              marginBottom: "6px",
+            }}
+          >
+            {form.tags.map((tag, i) => (
+              <span
+                key={i}
+                onClick={() =>
+                  setForm({
+                    ...form,
+                    tags: form.tags.filter((_, idx) => idx !== i),
+                  })
+                }
+                style={{
+                  fontSize: "12px",
+                  padding: "4px 10px",
+                  background: "#f5f0ff",
+                  borderRadius: "999px",
+                  color: "#7c3aed",
+                  cursor: "pointer",
+                }}
+              >
+                {tag} ✕
+              </span>
+            ))}
+          </div>
+          <input
+            placeholder='#태그 입력 후 Enter'
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                const tag = e.target.value.trim();
+                if (tag && !form.tags.includes(tag)) {
+                  setForm({ ...form, tags: [...form.tags, tag] });
+                  e.target.value = "";
+                }
+              }
+            }}
+            style={styles.input}
+          />
+        </div>
+
         <div
           style={{
             border: "1px solid #ddd",
