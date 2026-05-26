@@ -59,6 +59,8 @@ function BookEditPage() {
     author: "",
     summary: "",
     content: "",
+    copy: "",
+    tags: [],
     coverImageUrl: "",
   });
 
@@ -78,6 +80,8 @@ function BookEditPage() {
           author: data.author || "",
           summary: data.summary || "",
           content: data.content || "",
+          copy: data.copy || "",
+          tags: data.tags || [],
           coverImageUrl: data.coverImageUrl || "",
         });
         setOriginalBook(data);
@@ -253,7 +257,65 @@ function BookEditPage() {
 
         <hr style={{ border: "none", borderTop: "1px solid #eee" }} />
 
-        {/* AI 표지 생성 토글 */}
+        <div style={styles.fieldWrap}>
+          <label>한줄 카피</label>
+          <input
+            name='copy'
+            value={book.copy}
+            onChange={handleChange}
+            placeholder='한줄 카피를 입력하세요'
+            style={styles.input}
+          />
+        </div>
+
+        <div style={styles.fieldWrap}>
+          <label>태그</label>
+          <div
+            style={{
+              display: "flex",
+              gap: "6px",
+              flexWrap: "wrap",
+              marginBottom: "6px",
+            }}
+          >
+            {book.tags.map((tag, i) => (
+              <span
+                key={i}
+                onClick={() =>
+                  setBook({
+                    ...book,
+                    tags: book.tags.filter((_, idx) => idx !== i),
+                  })
+                }
+                style={{
+                  fontSize: "12px",
+                  padding: "4px 10px",
+                  background: "#f5f0ff",
+                  borderRadius: "999px",
+                  color: "#7c3aed",
+                  cursor: "pointer",
+                }}
+              >
+                {tag} ✕
+              </span>
+            ))}
+          </div>
+          <input
+            placeholder='#태그 입력 후 Enter'
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                const tag = e.target.value.trim();
+                if (tag && !book.tags.includes(tag)) {
+                  setBook({ ...book, tags: [...book.tags, tag] });
+                  e.target.value = "";
+                }
+              }
+            }}
+            style={styles.input}
+          />
+        </div>
+
         <div
           style={{
             border: "1px solid #ddd",
