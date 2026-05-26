@@ -6,8 +6,6 @@ function BookListPage() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const [sortOrder, setSortOrder] = useState("newest");
 
   useEffect(() => {
     async function loadBooks() {
@@ -18,38 +16,16 @@ function BookListPage() {
         console.error(err);
         setError("도서 목록을 불러오지 못했어요");
       }
+
       setLoading(false);
     }
+
     loadBooks();
   }, []);
 
-  // 검색 필터
-  const filterdBooks = books.filter(
-    (book) =>
-      book.title.includes(searchKeyword) ||
-      book.author.includes(searchKeyword)
-  );
-
-  // 정렬
-  const sortedBooks = [...filterdBooks].sort((a, b) => {
-    if (sortOrder === "newest")
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    if (sortOrder === "oldest")
-      return new Date(a.createdAt) - new Date(b.createdAt);
-    if (sortOrder === "title") return a.title.localeCompare(b.title);
-    if (sortOrder === "author") return a.author.localeCompare(b.author);
-    return 0;
-  });
-
   if (loading) {
     return (
-      <p
-        style={{
-          textAlign: "center",
-          marginTop: "40px",
-          fontFamily: "궁서",
-        }}
-      >
+      <p style={{ textAlign: "center", marginTop: "40px" }}>
         불러오는 중...
       </p>
     );
@@ -57,13 +33,7 @@ function BookListPage() {
 
   if (error) {
     return (
-      <p
-        style={{
-          textAlign: "center",
-          color: "red",
-          fontFamily: "궁서",
-        }}
-      >
+      <p style={{ textAlign: "center", color: "red" }}>
         {error}
       </p>
     );
@@ -72,189 +42,79 @@ function BookListPage() {
   return (
     <div
       style={{
-        backgroundColor: "#f8f4ee",
-        minHeight: "100vh",
-        paddingBottom: "80px",
+        maxWidth: "900px",
+        margin: "0 auto",
       }}
     >
-      {/* 상단 */}
-      <div
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "40px 40px 20px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "64px",
-            color: "#c9863b",
-            fontFamily: "궁서",
-            margin: 0,
-            letterSpacing: "2px",
-          }}
-        >
-          작가의 산책
-        </h1>
-
-        <div
-          style={{
-            display: "flex",
-            gap: "20px",
-          }}
-        >
-          <Link to="/" style={{ textDecoration: "none" }}>
-            <button
-              style={{
-                width: "160px",
-                height: "64px",
-                borderRadius: "18px",
-                border: "1px solid #d8a16a",
-                backgroundColor: "#f8f4ee",
-                color: "#c9863b",
-                fontSize: "20px",
-                fontFamily: "궁서",
-                cursor: "pointer",
-                transition: "0.2s",
-              }}
-            >
-              도서 목록
-            </button>
-          </Link>
-
-          <Link to="/books/new" style={{ textDecoration: "none" }}>
-            <button
-              style={{
-                width: "160px",
-                height: "64px",
-                borderRadius: "18px",
-                border: "none",
-                backgroundColor: "#d88b3d",
-                color: "white",
-                fontSize: "20px",
-                fontFamily: "궁서",
-                cursor: "pointer",
-                transition: "0.2s",
-              }}
-            >
-              도서 등록
-            </button>
-          </Link>
-        </div>
-      </div>
-
-      {/* 책장 */}
-      <div
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "40px",
-        }}
-      >
-        {[0, 1, 2, 3].map((shelfIndex) => (
-          <div
-            key={shelfIndex}
-            style={{
-              marginBottom: "70px",
-            }}
-          >
-            {/* 책들 */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-end",
-                gap: "10px",
-                paddingLeft: "30px",
-                flexWrap: "wrap",
-              }}
-            >
-              {books
-                .slice(shelfIndex * 5, shelfIndex * 5 + 5)
-                .map((book, index) => {
-                  const randomHeight = 220 + (index % 3) * 30;
-
-                  return (
-                    <Link
-                      key={book.id}
-                      to={`/books/${book.id}`}
-                      style={{
-                        textDecoration: "none",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: "90px",
-                          height: `${randomHeight}px`,
-                          border: "3px solid #d6a06a",
-                          borderRadius: "10px",
-                          backgroundColor: "#fffaf5",
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          boxSizing: "border-box",
-                          writingMode: "vertical-rl",
-                          textOrientation: "mixed",
-                          fontSize: "20px",
-                          fontWeight: "bold",
-                          color: "#c9863b",
-                          fontFamily: "궁서",
-                          letterSpacing: "2px",
-                          transition: "0.2s",
-                          transform:
-                            index % 4 === 2
-                              ? "rotate(-8deg)"
-                              : "rotate(0deg)",
-                        }}
-                      >
-                        {book.title}
-                      </div>
-                    </Link>
-                  );
-                })}
-
-              {/* 빈 공간 책 */}
-              {[0, 1, 2].map((empty) => (
-                <div
-                  key={empty}
-                  style={{
-                    width: "90px",
-                    height: "240px",
-                    border: "2px dashed #e5c9a8",
-                    borderRadius: "10px",
-                    backgroundColor: "transparent",
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* 선반 */}
-            <div
-              style={{
-                marginTop: "20px",
-                width: "100%",
-                height: "18px",
-                backgroundColor: "#f1d8c7",
-                borderRadius: "10px",
-              }}
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* footer */}
-      <div
+      <h1
         style={{
           textAlign: "center",
-          paddingTop: "40px",
-          color: "#c9863b",
-          fontFamily: "궁서",
-          fontSize: "18px",
+          marginBottom: "40px",
         }}
       >
-        © 2026 작가의 산책. All rights reserved.
+        도서 목록
+      </h1>
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "24px",
+        }}
+      >
+        {books.map((book) => (
+          <div
+            key={book.id}
+            style={{
+              display: "flex",
+              gap: "24px",
+              border: "1px solid #ddd",
+              borderRadius: "12px",
+              padding: "20px",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                width: "140px",
+                height: "180px",
+                backgroundColor: "#f1f1f1",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "#888",
+                borderRadius: "8px",
+                flexShrink: 0,
+              }}
+            >
+              no image
+            </div>
+
+            <div>
+              <h2>{book.title}</h2>
+
+              <p>저자: {book.author}</p>
+
+              <p>{book.summary}</p>
+
+              <Link to={`/books/${book.id}`}>
+                <button
+                  style={{
+                    marginTop: "12px",
+                    padding: "10px 20px",
+                    border: "none",
+                    borderRadius: "8px",
+                    backgroundColor: "#1f2937",
+                    color: "white",
+                    cursor: "pointer",
+                  }}
+                >
+                  상세 보기
+                </button>
+              </Link>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
