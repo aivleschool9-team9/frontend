@@ -8,6 +8,13 @@ export async function createBook(bookData) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(bookData),
     });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("서버 에러 응답:", text);
+      throw new Error(text);
+    }
+
     const data = await res.json();
     return data;
   } catch (err) {
@@ -15,18 +22,19 @@ export async function createBook(bookData) {
   }
 }
 
-
 // 2. 도서 표지 수정
 export const updateBookCover = async (bookId, imageUrl) => {
-  try{
+  try {
     const res = await fetch(`${BASE_URL}/${bookId}`, {
-      method: 'PATCH',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ coverImageUrl: imageUrl, updatedAt: new Date().toISOString() }),
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        coverImageUrl: imageUrl,
+        updatedAt: new Date().toISOString(),
+      }),
     });
     return await res.json();
-  } catch(err) {
+  } catch (err) {
     console.error("updateBookCover 에러:", err);
   }
 };
-
