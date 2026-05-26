@@ -7,12 +7,12 @@ const router = jsonServer.router('db.json');
 
 app.use(cors());
 
-// 1. 기존 json-server의 용량 제한 문제로 인한 커스텀 설정 (50MB)
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+// 1. 기존 json-server의 용량 제한 문제로 인한 커스텀 설정 (50MB)은 POST/PATCH 라우터에 직접 주입합니다.
+const jsonParser = express.json({ limit: '50mb' });
+const urlencodedParser = express.urlencoded({ limit: '50mb', extended: true });
 
 // 2-1. POST 요청을 intercept - db.json id 문자열 타입 호환 및 자동 id 생성
-app.post('/books', (req, res) => {
+app.post('/books', jsonParser, urlencodedParser, (req, res) => {
   console.log(`\n[서버] 도서 등록 요청 intercept 성공!`);
 
   const db = router.db;
@@ -32,7 +32,7 @@ app.post('/books', (req, res) => {
 });
 
 // 2. json-server가 건드리기 전에 먼저 PATCH 요청을 intercept
-app.patch('/books/:id', (req, res) => {
+app.patch('/books/:id', jsonParser, urlencodedParser, (req, res) => {
   console.log(`\n[서버] ID ${req.params.id}번 도서 이미지 저장 요청 intercept 성공!`);
 
   const db = router.db; // db.json 파일에 직접 접근

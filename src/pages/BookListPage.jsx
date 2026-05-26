@@ -6,6 +6,8 @@ function BookListPage() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [sortOrder, setSortOrder] = useState("newest");
 
   useEffect(() => {
     async function loadBooks() {
@@ -16,12 +18,28 @@ function BookListPage() {
         console.error(err);
         setError("도서 목록을 불러오지 못했어요");
       }
-
       setLoading(false);
     }
-
     loadBooks();
   }, []);
+
+  // 검색 필터
+  const filterdBooks = books.filter(
+    (book) =>
+      book.title.includes(searchKeyword) ||
+      book.author.includes(searchKeyword)
+  );
+
+  // 정렬
+  const sortedBooks = [...filterdBooks].sort((a, b) => {
+    if (sortOrder === "newest")
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    if (sortOrder === "oldest")
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    if (sortOrder === "title") return a.title.localeCompare(b.title);
+    if (sortOrder === "author") return a.author.localeCompare(b.author);
+    return 0;
+  });
 
   if (loading) {
     return (
