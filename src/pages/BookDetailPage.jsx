@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getBook } from "../api/books";
+import { getBook, deleteBook } from "../api/books";
 
 function BookDetailPage() {
   const { id } = useParams();
@@ -23,6 +23,18 @@ function BookDetailPage() {
     }
     loadBook();
   }, [id]);
+
+  const handleDelete = async () => {
+    if (window.confirm("정말 이 도서를 삭제하시겠습니까?")) {
+      const success = await deleteBook(id);
+      if (success) {
+        alert("도서가 삭제되었습니다.");
+        navigate("/");
+      } else {
+        alert("도서 삭제에 실패했습니다.");
+      }
+    }
+  };
 
   if (loading) return <p style={{ textAlign: "center", marginTop: "40px" }}>불러오는 중...</p>;
   if (error) return <p style={{ textAlign: "center", color: "#e55" }}>{error}</p>;
@@ -55,8 +67,8 @@ function BookDetailPage() {
 
       <div style={{ display: "flex", gap: "8px", marginTop: "24px" }}>
         <button onClick={() => navigate("/")}>목록으로</button>
-        <button onClick={() => navigate(`/books-db/${id}/edit`)}>수정</button>
-        <button style={{ color: "#e55" }}>삭제</button>
+        <button onClick={() => navigate(`/books/${id}/edit`)}>수정</button>
+        <button onClick={handleDelete} style={{ color: "#e55" }}>삭제</button>
       </div>
     </div>
   );
