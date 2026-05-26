@@ -23,6 +23,16 @@
       "createdAt": "2026-05-26T06:48:27.537Z",
       "updatedAt": "2026-05-26T06:48:27.537Z",
       "id": "MitENAA0TrQ"
+    },
+    {
+      "title": "에이블스쿨",
+      "author": "9조",
+      "summary": "미프",
+      "content": "파이팅",
+      "coverImageUrl": "",
+      "createdAt": "2026-05-26T07:09:05.043Z",
+      "updatedAt": "2026-05-26T07:09:05.043Z",
+      "id": "M8WYm2JDt2I"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
