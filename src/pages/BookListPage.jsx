@@ -37,7 +37,7 @@ function BookListPage() {
           {books.map((book) => (
             <div
               key={book.id}
-              onClick={() => navigate(`/books-db/${book.id}`)}
+              onClick={() => navigate(`/books/${book.id}`)}
               style={{
                 border: "1px solid #e0e0e0",
                 borderRadius: "8px",
