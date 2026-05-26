@@ -80,7 +80,7 @@ function Navbar() {
             </button>
           </Link>
 
-          <Link to="/books-db/new">
+          <Link to="/books_db/new">
             <button
               style={{
                 padding: "10px 18px",

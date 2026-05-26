@@ -30,17 +30,17 @@ function App() {
             <Route path="/" element={<BookListPage />} />
 
             <Route
-              path="/books-db/new"
+              path="/books_db/new"
               element={<BookCreatePage />}
             />
 
             <Route
-              path="/books-db/:id"
+              path="/books_db/:id"
               element={<BookDetailPage />}
             />
 
             <Route
-              path="/books-db/:id/edit"
+              path="/books_db/:id/edit"
               element={<BookEditPage />}
             />
           </Routes>

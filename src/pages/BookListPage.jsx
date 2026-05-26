@@ -101,7 +101,7 @@ function BookListPage() {
 
               <button
                 onClick={() =>
-                  navigate(`/books-db/${book.id}`)
+                  navigate(`/books_db/${book.id}`)
                 }
                 style={{
                   width: "120px",
