@@ -1,8 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-
+import Navbar from "./components/common/Navbar";
+import Footer from "./components/common/Footer";
 import BookListPage from "./pages/BookListPage";
 import BookDetailPage from "./pages/BookDetailPage";
 import BookCreatePage from "./pages/BookCreatePage";
@@ -28,21 +26,9 @@ function App() {
         >
           <Routes>
             <Route path="/" element={<BookListPage />} />
-
-            <Route
-              path="/books_db/new"
-              element={<BookCreatePage />}
-            />
-
-            <Route
-              path="/books_db/:id"
-              element={<BookDetailPage />}
-            />
-
-            <Route
-              path="/books_db/:id/edit"
-              element={<BookEditPage />}
-            />
+            <Route path="/books/new" element={<BookCreatePage />} />
+            <Route path="/books/:id" element={<BookDetailPage />} />
+            <Route path="/books/:id/edit" element={<BookEditPage />} />
           </Routes>
         </main>
 
