@@ -81,8 +81,11 @@ function BookListPage() {
 
     setAiLoading(true);
     try {
-      // 1. LLM 지식을 활용하여 검색 쿼리 확장 (제목, 저자, 키워드 유추)
-      const expansion = await fetchExpandedQuery(searchKeyword);
+      // 1. 소장된 도서 목록을 텍스트 콘텍스트로 변환
+      const bookListContext = books.map((b) => `'${b.title}' (${b.author})`).join(', ');
+
+      // 2. LLM 지식을 활용하여 검색 쿼리 확장 (목록 내 도서와 우선 매칭)
+      const expansion = await fetchExpandedQuery(searchKeyword, bookListContext);
       
       // 유추된 도서 정보 저장
       if (expansion.inferredTitle) {
