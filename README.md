@@ -108,7 +108,7 @@ src/
 ```
 
 ---
-## **시연 영상 및 스크린샷 **
+## **📷시연 영상 및 스크린샷**
 
 https://github.com/user-attachments/assets/d9667dda-47a5-4042-9896-a0064c6a7414
 
