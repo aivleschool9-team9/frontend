@@ -128,6 +128,20 @@ function BookListPage() {
       book.title.includes(searchKeyword) || book.author.includes(searchKeyword),
   );
 
+  // 코사인 유사도를 직관적인 백분율 점수로 변환하는 보정 함수
+  const displaySimilarity = (score) => {
+    if (score <= 0) return "0%";
+    const min = 0.12;
+    const max = 0.50;
+    let percent;
+    if (score <= min) {
+      percent = Math.max(0, Math.round((score / min) * 30));
+    } else {
+      percent = 30 + ((score - min) / (max - min)) * 70;
+    }
+    return `${Math.min(100, Math.round(percent))}%`;
+  };
+
   const isAiSearchActive = isAiSearch && lastSubmittedQuery.trim() !== "";
 
   // 검색 결과에 따른 노출 대상 목록 설정
@@ -430,7 +444,7 @@ function BookListPage() {
                         mb: 1,
                       }}
                     >
-                      AI 유사도: {(similarityScores[book.id] * 100).toFixed(1)}%
+                      AI 유사도: {displaySimilarity(similarityScores[book.id])}
                     </Box>
                   )}
                   <Typography
