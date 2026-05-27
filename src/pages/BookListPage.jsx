@@ -18,7 +18,11 @@ import SearchIcon from "@mui/icons-material/Search";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import SparklesIcon from "@mui/icons-material/AutoAwesome";
-import { fetchAiEmbedding, cosineSimilarity, fetchExpandedQuery } from "../api/openai";
+import {
+  fetchAiEmbedding,
+  cosineSimilarity,
+  fetchExpandedQuery,
+} from "../api/openai";
 
 const fadeUp = {
   "@keyframes fadeUp": {
@@ -82,11 +86,16 @@ function BookListPage() {
     setAiLoading(true);
     try {
       // 1. 소장된 도서 목록을 텍스트 콘텍스트로 변환
-      const bookListContext = books.map((b) => `'${b.title}' (${b.author})`).join(', ');
+      const bookListContext = books
+        .map((b) => `'${b.title}' (${b.author})`)
+        .join(", ");
 
       // 2. LLM 지식을 활용하여 검색 쿼리 확장 (목록 내 도서와 우선 매칭)
-      const expansion = await fetchExpandedQuery(searchKeyword, bookListContext);
-      
+      const expansion = await fetchExpandedQuery(
+        searchKeyword,
+        bookListContext,
+      );
+
       // 유추된 도서 정보 저장
       if (expansion.inferredTitle) {
         setAiInferredInfo({
@@ -98,8 +107,9 @@ function BookListPage() {
       }
 
       // 원래 검색어와 LLM의 추론/확장 정보를 함께 결합한 텍스트로 임베딩 생성
-      const expandedText = `${searchKeyword} ${expansion.inferredTitle} ${expansion.inferredAuthor} ${expansion.expandedKeywords}`.trim();
-      console.log("[RAG] 확장된 검색어:", expandedText);
+      const expandedText =
+        `${searchKeyword} ${expansion.inferredTitle} ${expansion.inferredAuthor} ${expansion.expandedKeywords}`.trim();
+      // console.log("[RAG] 확장된 검색어:", expandedText);
 
       const queryEmbedding = await fetchAiEmbedding(expandedText);
       const scores = {};
@@ -154,7 +164,7 @@ function BookListPage() {
   const displaySimilarity = (score) => {
     if (score <= 0) return "0%";
     const min = 0.12;
-    const max = 0.50;
+    const max = 0.5;
     let percent;
     if (score <= min) {
       percent = Math.max(0, Math.round((score / min) * 30));
@@ -169,8 +179,12 @@ function BookListPage() {
   // 검색 결과에 따른 노출 대상 목록 설정
   const likedFilteredBooks =
     sortOrder === "liked"
-      ? (isAiSearchActive ? books.filter((book) => likedIds.includes(String(book.id))) : filterdBooks.filter((book) => likedIds.includes(String(book.id))))
-      : (isAiSearchActive ? books : filterdBooks);
+      ? isAiSearchActive
+        ? books.filter((book) => likedIds.includes(String(book.id)))
+        : filterdBooks.filter((book) => likedIds.includes(String(book.id)))
+      : isAiSearchActive
+        ? books
+        : filterdBooks;
 
   // 정렬 순서 계산 (AI 검색 활성화 시 유사도 순 정렬 우선)
   const sortedBooks = [...likedFilteredBooks].sort((a, b) => {
@@ -191,7 +205,8 @@ function BookListPage() {
   });
 
   const hasBooksWithoutEmbedding =
-    books.length > 0 && books.some((book) => !book.embedding || book.embedding.length === 0);
+    books.length > 0 &&
+    books.some((book) => !book.embedding || book.embedding.length === 0);
 
   if (loading) {
     return (
@@ -387,7 +402,10 @@ function BookListPage() {
           >
             <SparklesIcon sx={{ fontSize: "16px", color: "#8A6A44" }} />
             <span>
-              <strong>AI 지식 연상 결과:</strong> 입력하신 단서로 볼 때 <strong>'{aiInferredInfo.title}'</strong> ({aiInferredInfo.author || "저자 미상"})과 가장 유관해 보입니다. 관련성 높은 매칭 결과를 아래에서 확인해 보세요.
+              <strong>AI 지식 연상 결과:</strong> 입력하신 단서로 볼 때{" "}
+              <strong>'{aiInferredInfo.title}'</strong> (
+              {aiInferredInfo.author || "저자 미상"})과 가장 유관해 보입니다.
+              관련성 높은 매칭 결과를 아래에서 확인해 보세요.
             </span>
           </Typography>
         </Box>
@@ -487,24 +505,26 @@ function BookListPage() {
                 }}
               >
                 <Box>
-                  {isAiSearchActive && similarityScores[book.id] !== undefined && (
-                    <Box
-                      sx={{
-                        display: "inline-block",
-                        backgroundColor: "#F8F3EA",
-                        color: "#8A6A44",
-                        border: "1px solid #ead7b1",
-                        borderRadius: "999px",
-                        fontSize: "11px",
-                        fontWeight: "bold",
-                        py: 0.25,
-                        px: 1,
-                        mb: 1,
-                      }}
-                    >
-                      AI 유사도: {displaySimilarity(similarityScores[book.id])}
-                    </Box>
-                  )}
+                  {isAiSearchActive &&
+                    similarityScores[book.id] !== undefined && (
+                      <Box
+                        sx={{
+                          display: "inline-block",
+                          backgroundColor: "#F8F3EA",
+                          color: "#8A6A44",
+                          border: "1px solid #ead7b1",
+                          borderRadius: "999px",
+                          fontSize: "11px",
+                          fontWeight: "bold",
+                          py: 0.25,
+                          px: 1,
+                          mb: 1,
+                        }}
+                      >
+                        AI 유사도:{" "}
+                        {displaySimilarity(similarityScores[book.id])}
+                      </Box>
+                    )}
                   <Typography
                     component='h2'
                     sx={{

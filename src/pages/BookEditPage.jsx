@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getBook, updateBook } from "../api/books";
-import { fetchAiCover, fetchAiCopyAndTags, fetchAiEmbedding } from "../api/openai";
+import {
+  fetchAiCover,
+  fetchAiCopyAndTags,
+  fetchAiEmbedding,
+} from "../api/openai";
 import BookForm from "../components/book/BookForm";
 import AICopyTagSection from "../components/book/AICopyTagSection";
 import AICoverSection from "../components/book/AICoverSection";
@@ -127,7 +131,6 @@ function BookEditPage() {
       if (!updatedBook) {
         throw new Error("수정 실패");
       }
-      console.log("수정 완료:", updatedBook);
       alert("도서 수정 완료");
     } catch (err) {
       console.error(err);
@@ -166,7 +169,12 @@ function BookEditPage() {
     try {
       setCopyLoading(true);
       const result = await fetchAiCopyAndTags(book.title, book.content);
-      setBook({ ...book, summary: result.summary, copy: result.copy, tags: result.tags });
+      setBook({
+        ...book,
+        summary: result.summary,
+        copy: result.copy,
+        tags: result.tags,
+      });
     } catch (err) {
       alert("생성에 실패했습니다.");
       console.error(err);
@@ -177,7 +185,10 @@ function BookEditPage() {
 
   if (loading) {
     return (
-      <Typography variant="body1" sx={{ textAlign: "center", marginTop: "40px" }}>
+      <Typography
+        variant='body1'
+        sx={{ textAlign: "center", marginTop: "40px" }}
+      >
         불러오는 중...
       </Typography>
     );
@@ -185,7 +196,10 @@ function BookEditPage() {
 
   if (error) {
     return (
-      <Typography variant="body1" sx={{ textAlign: "center", color: "#e55", marginTop: "40px" }}>
+      <Typography
+        variant='body1'
+        sx={{ textAlign: "center", color: "#e55", marginTop: "40px" }}
+      >
         {error}
       </Typography>
     );
@@ -200,18 +214,19 @@ function BookEditPage() {
     !copyLoading;
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth='md' sx={{ py: 4 }}>
       <Paper
         elevation={2}
         sx={{
           p: { xs: 3, md: 5 },
           backgroundColor: "#fffaf3",
           borderRadius: "20px",
-          boxShadow: "0 8px 20px rgba(0,0,0,0.05), 0 2px 8px rgba(201,141,26,0.12)",
+          boxShadow:
+            "0 8px 20px rgba(0,0,0,0.05), 0 2px 8px rgba(201,141,26,0.12)",
         }}
       >
         <Typography
-          variant="h1"
+          variant='h1'
           sx={{
             fontSize: "28px",
             color: "#b87912",
@@ -222,8 +237,9 @@ function BookEditPage() {
         >
           도서 수정
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-          도서의 정보를 수정하고 필요한 경우 AI 표지나 홍보 카피를 갱신해 보세요.
+        <Typography variant='body2' color='text.secondary' sx={{ mb: 4 }}>
+          도서의 정보를 수정하고 필요한 경우 AI 표지나 홍보 카피를 갱신해
+          보세요.
         </Typography>
 
         <form onSubmit={handleSubmit}>
@@ -241,7 +257,10 @@ function BookEditPage() {
               onAIRequest={handleAICopyAndTags}
               onAdd={(tag) => setBook({ ...book, tags: [...book.tags, tag] })}
               onRemove={(i) =>
-                setBook({ ...book, tags: book.tags.filter((_, idx) => idx !== i) })
+                setBook({
+                  ...book,
+                  tags: book.tags.filter((_, idx) => idx !== i),
+                })
               }
             />
 
@@ -258,14 +277,24 @@ function BookEditPage() {
             />
 
             {book.coverImageUrl && (
-              <Typography variant="body2" sx={{ color: "#1976d2", fontWeight: 500 }}>
+              <Typography
+                variant='body2'
+                sx={{ color: "#1976d2", fontWeight: 500 }}
+              >
                 ✓ AI 표지가 도서에 적용되었습니다.
               </Typography>
             )}
 
-            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1.5, mt: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 1.5,
+                mt: 2,
+              }}
+            >
               <Button
-                variant="outlined"
+                variant='outlined'
                 onClick={() => navigate(`/books/${id}`)}
                 startIcon={<CancelIcon />}
                 sx={{
@@ -277,9 +306,9 @@ function BookEditPage() {
                 취소
               </Button>
               <Button
-                type="submit"
-                variant="contained"
-                color="primary"
+                type='submit'
+                variant='contained'
+                color='primary'
                 disabled={!isFormValid}
                 startIcon={<SaveIcon />}
               >
