@@ -74,6 +74,7 @@ function BookListPage() {
       return new Date(a.createdAt) - new Date(b.createdAt);
     if (sortOrder === "title") return a.title.localeCompare(b.title);
     if (sortOrder === "author") return a.author.localeCompare(b.author);
+    if (sortOrder === "likes") return (b.likes || 0) - (a.likes || 0);
     return 0;
   });
 
@@ -162,7 +163,8 @@ function BookListPage() {
           <MenuItem value='oldest'>오래된순</MenuItem>
           <MenuItem value='title'>제목순</MenuItem>
           <MenuItem value='author'>작가명순</MenuItem>
-          <MenuItem value='liked'>좋아요한 책</MenuItem>
+          <MenuItem value='likes'>좋아요순</MenuItem>
+          <MenuItem value='liked'>좋아요한 도서</MenuItem>
         </Select>
       </Box>
 
