@@ -153,6 +153,62 @@ export const fetchAiCopyAndTags = async (title, content) => {
 };
 
 /**
+ * 사용자의 단서 검색어를 받아 LLM의 자체 지식으로 도서명/작가/연관 키워드를 추론(Query Expansion)하는 함수
+ * @param {string} query - 사용자의 자연어 검색 쿼리
+ * @returns {Promise<{inferredTitle: string, inferredAuthor: string, expandedKeywords: string}>}
+ */
+export const fetchExpandedQuery = async (query) => {
+  if (!query || !query.trim()) {
+    return { inferredTitle: "", inferredAuthor: "", expandedKeywords: "" };
+  }
+
+  if (!apiKey) {
+    console.error('.env 파일에 VITE_OPENAI_API_KEY가 설정되지 않았습니다.');
+    throw new Error('API Key가 누락되었습니다.');
+  }
+
+  try {
+    const res = await fetch(OPENAI_TEXT_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content: `너는 사용자가 도서 데이터베이스를 검색할 때 검색어를 풍부하게 확장해주는 AI 검색 도우미야.
+사용자가 책 제목을 기억하지 못하고 기억나는 줄거리, 인물, 분위기, 혹은 오타가 섞인 키워드 등으로 검색할 때, 네가 가진 풍부한 지식을 바탕으로 사용자가 찾으려고 하는 실제 책의 유력한 제목(inferredTitle), 저자(inferredAuthor), 그리고 연상되는 핵심 키워드들(expandedKeywords)을 추론해줘.
+JSON 형식 예시:
+{
+  "inferredTitle": "노인과 바다",
+  "inferredAuthor": "어니스트 헤밍웨이",
+  "expandedKeywords": "청새치, 바다, 어부, 사투, 상어, 헤밍웨이"
+}
+만약 사용자의 검색어에서 특정 고전이나 유명 도서를 유추할 수 없다면, 입력받은 검색어의 키워드를 기반으로 시맨틱 검색에 도움을 줄 수 있는 동의어와 연관 키워드를 채워줘.`
+          },
+          {
+            role: "user",
+            content: `사용자 검색어: ${query}`
+          }
+        ],
+        temperature: 0.3,
+      }),
+    });
+
+    if (!res.ok) throw new Error(`OpenAI Chat 요청 실패: ${res.status}`);
+    const data = await res.json();
+    return JSON.parse(data.choices[0].message.content);
+  } catch (err) {
+    console.error("Query Expansion 실패:", err);
+    return { inferredTitle: "", inferredAuthor: "", expandedKeywords: "" };
+  }
+};
+
+/**
  * 두 1536차원 벡터 간의 코사인 유사도(dot product)를 계산하는 함수
  * (OpenAI 임베딩은 이미 정규화되어 있으므로 단순 내적으로 계산 가능)
  * @param {number[]} vecA

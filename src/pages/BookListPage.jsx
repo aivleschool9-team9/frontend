@@ -18,7 +18,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import SparklesIcon from "@mui/icons-material/AutoAwesome";
-import { fetchAiEmbedding, cosineSimilarity } from "../api/openai";
+import { fetchAiEmbedding, cosineSimilarity, fetchExpandedQuery } from "../api/openai";
 
 const fadeUp = {
   "@keyframes fadeUp": {
@@ -40,6 +40,7 @@ function BookListPage() {
   const [similarityScores, setSimilarityScores] = useState({});
   const [lastSubmittedQuery, setLastSubmittedQuery] = useState("");
   const [backfilling, setBackfilling] = useState(false);
+  const [aiInferredInfo, setAiInferredInfo] = useState(null); // LLM 지식 추론 정보
 
   const getLikedIds = () => {
     return Object.keys(localStorage)
@@ -69,17 +70,35 @@ function BookListPage() {
     return () => window.removeEventListener("focus", handleFocus);
   }, []);
 
-  // AI 검색어 입력 후 제출 핸들러
+  // AI 검색어 입력 후 제출 핸들러 (Query Expansion 적용)
   const handleAiSearch = async () => {
     if (!searchKeyword.trim()) {
       setSimilarityScores({});
       setLastSubmittedQuery("");
+      setAiInferredInfo(null);
       return;
     }
 
     setAiLoading(true);
     try {
-      const queryEmbedding = await fetchAiEmbedding(searchKeyword);
+      // 1. LLM 지식을 활용하여 검색 쿼리 확장 (제목, 저자, 키워드 유추)
+      const expansion = await fetchExpandedQuery(searchKeyword);
+      
+      // 유추된 도서 정보 저장
+      if (expansion.inferredTitle) {
+        setAiInferredInfo({
+          title: expansion.inferredTitle,
+          author: expansion.inferredAuthor,
+        });
+      } else {
+        setAiInferredInfo(null);
+      }
+
+      // 원래 검색어와 LLM의 추론/확장 정보를 함께 결합한 텍스트로 임베딩 생성
+      const expandedText = `${searchKeyword} ${expansion.inferredTitle} ${expansion.inferredAuthor} ${expansion.expandedKeywords}`.trim();
+      console.log("[RAG] 확장된 검색어:", expandedText);
+
+      const queryEmbedding = await fetchAiEmbedding(expandedText);
       const scores = {};
       books.forEach((book) => {
         if (book.embedding && book.embedding.length > 0) {
@@ -302,6 +321,7 @@ function BookListPage() {
             if (isAiSearch) {
               setSimilarityScores({});
               setLastSubmittedQuery("");
+              setAiInferredInfo(null);
             }
           }}
           startIcon={<SparklesIcon />}
@@ -334,6 +354,39 @@ function BookListPage() {
           <MenuItem value='liked'>좋아요한 책</MenuItem>
         </Select>
       </Box>
+
+      {/* AI 지식 연상 결과 안내 배너 */}
+      {isAiSearchActive && aiInferredInfo && (
+        <Box
+          sx={{
+            maxWidth: "800px",
+            mx: "auto",
+            mb: 3.5,
+            p: 2,
+            backgroundColor: "#fffdf8",
+            border: "1px dashed #ead7b1",
+            borderRadius: "12px",
+            animation: "fadeUp 0.4s ease-out",
+            ...fadeUp,
+          }}
+        >
+          <Typography
+            variant='body2'
+            sx={{
+              color: "#8A6A44",
+              fontFamily: "inherit",
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+            }}
+          >
+            <SparklesIcon sx={{ fontSize: "16px", color: "#8A6A44" }} />
+            <span>
+              <strong>AI 지식 연상 결과:</strong> 입력하신 단서로 볼 때 <strong>'{aiInferredInfo.title}'</strong> ({aiInferredInfo.author || "저자 미상"})과 가장 유관해 보입니다. 관련성 높은 매칭 결과를 아래에서 확인해 보세요.
+            </span>
+          </Typography>
+        </Box>
+      )}
 
       {/* 도서 목록 */}
       {sortedBooks.length === 0 ? (
