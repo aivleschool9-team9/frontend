@@ -116,8 +116,7 @@ export async function createSearchLog({query, searchType, matchedBookCount, dura
 // ────────────────────────────────────────────
 // 3-3. 검색 결과 클릭 로그 저장
 // POST /search-result-clicks
-// AI 검색 시 노출된 결과를 전부 INSERT (clicked_at은 null)
-// 사용자가 카드 클릭 시 clicked_at UPDATE → CTR 분석 가능
+// AI 검색 결과에서 사용자가 카드 클릭 시에만 저장
 // Outcome 측정용: 검색 품질 (rank_position 낮을수록 좋음)
 // ────────────────────────────────────────────
 export async function logSearchClick({searchLogId, bookId, rankPosition, similarityScore}){
