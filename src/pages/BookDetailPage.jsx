@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getBook, deleteBook, likeBook } from "../api/books";
+import { getBookById, deleteBook, likeBook } from "../api/books";
 import {
   Container,
   Paper,
@@ -27,7 +27,7 @@ function BookDetailPage() {
   useEffect(() => {
     async function loadBook() {
       try {
-        const data = await getBook(id);
+        const data = await getBookById(id);
         if (!data) throw new Error("없음");
         setBook(data);
       } catch (err) {

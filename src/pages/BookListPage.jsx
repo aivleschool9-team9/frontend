@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getBooks, semanticSearchBooks, createSearchLog, createSearchResultClick} from "../api/books";
+import { getBooks, searchBooksBySemantic, createSearchLog, logSearchClick} from "../api/books";
 import {
   Box,
   Typography,
@@ -38,11 +38,13 @@ function BookListPage() {
   const [sortOrder, setSortOrder] = useState("newest");         //  정렬 기준 (최신순 등)
 
   // ── AI 의미 검색 상태 ────────────────────────────
-  const [isAiSearch, setIsAiSearch] = useState(false);  // AI 검색 모드 on/off
-  const [aiLoading, setAiLoading] = useState(false); // AI 검색 처리 중 여부
-  const [similarityScores, setSimilarityScores] = useState({}); // { bookId: 유사도점수 } 형태로 저장
-  const [lastSubmittedQuery, setLastSubmittedQuery] = useState(""); // 마지막으로 AI 검색한 검색어
-  const [aiInferredInfo, setAiInferredInfo] = useState(null); // AI가 추론한 도서 정보 (제목, 저자)
+  const [isAiSearch, setIsAiSearch] = useState(false);                 // AI 검색 모드 on/off
+  const [aiLoading, setAiLoading] = useState(false);                   // AI 검색 처리 중 여부
+  const [similarityScores, setSimilarityScores] = useState({});        // { bookId: 유사도점수 } → 카드에 "AI 유사도: 85%" 표시용
+  const [lastSubmittedQuery, setLastSubmittedQuery] = useState("");    // 마지막으로 AI 검색한 검색어
+  const [aiInferredInfo, setAiInferredInfo] = useState(null);          // AI가 추론한 도서 정보 (배너에 표시)
+  const [currentSearchLogId, setCurrentSearchLogId] = useState(null);  // 클릭 로그 저장할 때 필요한 검색 로그 id
+  const [searchResults, setSearchResults] = useState([]);              // AI 검색 결과 원본 (클릭 시 순위 계산용)
 
   const getLikedIds = () => {
     return Object.keys(localStorage)
@@ -129,12 +131,12 @@ function BookListPage() {
       // 원본 검색어 + 추론 정보 합쳐서 임베딩 생성
       const expandedText =
         `${searchKeyword} ${expansion.inferredTitle} ${expansion.inferredAuthor} ${expansion.expandedKeywords}`.trim();
- 
+  
       const queryEmbedding = await fetchAiEmbedding(expandedText);
-     
+      
       // Spring으로 벡터 전송 → 코사인 유사도 계산 → 유사 도서 반환
       const startTime = performance.now();
-      const results = await semanticSearchBooks({ queryVector: queryEmbedding, topK: 5 });
+      const results = await searchBooksBySemantic({ queryVector: queryEmbedding, topK: 5 });
       const durationMs = Math.round(performance.now() - startTime);
 
       // 검색 로그 저장 후 반환된 id로 노출 결과 클릭 로그 저장
@@ -145,17 +147,11 @@ function BookListPage() {
         durationMs,
       });
 
-      // 노출된 결과 전체를 클릭 로그에 INSERT (clicked_at은 null → 클릭 시 UPDATE)
+  
       if (log?.id) {
-        await Promise.all(results.map((book) =>
-          createSearchResultClick({
-            searchLogId: log.id,
-            bookId: book.id,
-            rankPosition: book.rankPosition,
-            similarityScore: book.similarityScore,
-          })
-        ));
+        setCurrentSearchLogId(log.id); // 클릭 로그 저장용 log id 보관
       }
+      setSearchResults(results);      // 검색 결과 상태에 저장 (rankPosition용)
 
       // 유사도 점수를 { bookId: score } 형태로 저장 → 카드에 표시용
       const scores = {};
@@ -163,9 +159,9 @@ function BookListPage() {
         scores[book.id] = book.similarityScore;
       });
       setSimilarityScores(scores);
-      setBooks(results);
+      setBooks(results); 
       setLastSubmittedQuery(searchKeyword);
-     
+      
     } catch (err) {
       console.error(err);
       alert("AI 검색 중 오류가 발생했습니다.");
@@ -191,6 +187,7 @@ function BookListPage() {
 
   // AI 검색 결과가 화면에 활성화된 상태인지 여부
   const isAiSearchActive = isAiSearch && lastSubmittedQuery.trim() !== "";
+
 
   // ── 화면에 표시할 목록 결정 ─────────────────────
   // "좋아요한 도서" 정렬이면 좋아요한 책만, 아니면 전체 books
@@ -324,6 +321,8 @@ function BookListPage() {
               setSimilarityScores({});
               setLastSubmittedQuery("");
               setAiInferredInfo(null);
+              setCurrentSearchLogId(null);
+              setSearchResults([]);
             }
           }}
           startIcon={<SparklesIcon />}
@@ -560,6 +559,19 @@ function BookListPage() {
                   <Link
                     to={`/books/${book.id}`}
                     style={{ textDecoration: "none" }}
+                    onClick={() => {
+                      if(isAiSearchActive && currentSearchLogId) {
+                        const clickedResult = searchResults.find((r) => r.id === book.id);
+                        if(clickedResult) {
+                          logSearchClick({
+                            searchLogId: currentSearchLogId,
+                            bookId: book.id,
+                            rankPosition: searchResults.indexOf(clickedResult) + 1,
+                            similarityScore: similarityScores[book.id],
+                          });
+                        }
+                      }
+                    }}
                   >
                     <Button
                       variant='contained'
