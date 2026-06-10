@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getBook, updateBook } from "../api/books";
+import { getBooksById, updateBook } from "../api/books";
 import {
   fetchAiCover,
   fetchAiCopyAndTags,
@@ -118,26 +118,26 @@ function BookEditPage() {
     if (didTextChange) {
       try {
         const textToEmbed = `제목: ${book.title}\n저자: ${book.author}\n요약: ${book.summary}\n내용: ${book.content}`;
+        const startTime = performance.now();
         updatedFields.embedding = await fetchAiEmbedding(textToEmbed);
+        updatedFields.embeddingDurationMs = Math.round(performance.now() - startTime);
       } catch (embErr) {
         console.error("임베딩 수정 실패:", embErr);
       }
     }
-
-    updatedFields.updatedAt = new Date().toISOString();
 
     try {
       const updatedBook = await updateBook(id, updatedFields);
       if (!updatedBook) {
         throw new Error("수정 실패");
       }
-      alert("도서 수정 완료");
     } catch (err) {
       console.error(err);
       alert("도서 수정에 실패했습니다.");
-    } finally {
-      navigate("/");
-    }
+      return;
+    } 
+    alert("도서 수정 완료");
+    navigate(`/books/${id}`);
   };
 
   const handleAIGenerate = async () => {

@@ -54,13 +54,14 @@ function BookCreatePage() {
     const isValid = validate(form);
     if (!isValid) return;
 
-    const now = new Date().toISOString();
-
     try {
-      let embedding = [];
+      let embeddingJson = [];
+      let embeddingDurationMs = 0;
       try {
         const textToEmbed = `제목: ${form.title}\n저자: ${form.author}\n요약: ${form.summary}\n내용: ${form.content}`;
-        embedding = await fetchAiEmbedding(textToEmbed);
+        const startTime = performance.now();
+        embeddingJson = await fetchAiEmbedding(textToEmbed);
+        embeddingDurationMs = Math.round(performance.now() - startTime);
       } catch (embErr) {
         console.error("임베딩 생성 실패:", embErr);
       }
@@ -72,10 +73,9 @@ function BookCreatePage() {
         content: form.content,
         copy: form.copy,
         tags: form.tags,
-        coverImageUrl: "",
-        embedding,
-        createdAt: now,
-        updatedAt: now,
+        coverImageUrl: "", 
+        embeddingJson,
+        embeddingDurationMs,
       });
 
       if (!created) {
@@ -86,21 +86,10 @@ function BookCreatePage() {
         await updateBookCover(created.id, form.coverImageUrl);
       }
       alert("등록이 완료되었습니다!");
+      navigate(`/books/${created.id}`);
     } catch (err) {
       console.error(err);
       alert("도서 등록에 실패했습니다.");
-    } finally {
-      setForm({
-        title: "",
-        author: "",
-        summary: "",
-        content: "",
-        copy: "",
-        tags: [],
-        coverImageUrl: "",
-      });
-      localStorage.clear();
-      navigate("/");
     }
   };
 
