@@ -61,8 +61,7 @@ function BookCreatePage() {
         const textToEmbed = `제목: ${form.title}\n저자: ${form.author}\n요약: ${form.summary}\n내용: ${form.content}`;
         const startTime = performance.now();
         embeddingJson = await fetchAiEmbedding(textToEmbed);
-        const endTime = performance.now();
-        embeddingDurationMs = Math.round(endTime - startTime);
+        embeddingDurationMs = Math.round(performance.now() - startTime);
       } catch (embErr) {
         console.error("임베딩 생성 실패:", embErr);
       }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getBooks, updateBook } from "../api/books";
+import { getBooks, updateBook, semanticSearchBooks, createSearchLog, createSearchResultClick} from "../api/books";
 import {
   Box,
   Typography,
@@ -18,11 +18,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import SparklesIcon from "@mui/icons-material/AutoAwesome";
-import {
-  fetchAiEmbedding,
-  cosineSimilarity,
-  fetchExpandedQuery,
-} from "../api/openai";
+import {fetchAiEmbedding,fetchExpandedQuery,} from "../api/openai";
 
 const fadeUp = {
   "@keyframes fadeUp": {
@@ -110,18 +106,32 @@ function BookListPage() {
       const expandedText =
         `${searchKeyword} ${expansion.inferredTitle} ${expansion.inferredAuthor} ${expansion.expandedKeywords}`.trim();
       // console.log("[RAG] 확장된 검색어:", expandedText);
-
       const queryEmbedding = await fetchAiEmbedding(expandedText);
-      const scores = {};
-      books.forEach((book) => {
-        if (book.embedding && book.embedding.length > 0) {
-          scores[book.id] = cosineSimilarity(queryEmbedding, book.embedding);
-        } else {
-          scores[book.id] = 0;
-        }
+      
+      const startTime = performance.now();
+      const results = await semanticSearchBooks({ queryVector: queryEmbedding, topK: 5 });
+      const durationMs = Math.round(performance.now() - startTime);
+
+      const log = await createSearchLog({
+        query: searchKeyword,
+        searchType: "SEMANTIC",
+        mathchedBookCount: results.length,
+        durationMs,
       });
-      setSimilarityScores(scores);
-      setLastSubmittedQuery(searchKeyword);
+
+      // 
+      if (log?.id) {
+        await Promise.all(results.map((book) =>
+          createSearchResultClick({
+            searchLogId: log.id,
+            bookId: book.id,
+            rankPosition: book.rankPosition,
+            similarityScore: book.similarityScore,
+          })
+        ));
+      }
+
+      
     } catch (err) {
       console.error(err);
       alert("AI 검색 중 오류가 발생했습니다.");
@@ -139,7 +149,11 @@ function BookListPage() {
         if (!book.embedding || book.embedding.length === 0) {
           const textToEmbed = `제목: ${book.title}\n저자: ${book.author}\n요약: ${book.summary}\n내용: ${book.content}`;
           const embedding = await fetchAiEmbedding(textToEmbed);
-          await updateBook(book.id, { embedding });
+
+          const startTime = performance.now();
+          const embeddingJson = await fetchAiEmbedding(textToEmbed);
+          const embeddingDurationMs = Math.round(performance.now() - startTime);
+          await updateBook(book.id, { embeddingJson, embeddingDurationMs });
           count++;
         }
       }
