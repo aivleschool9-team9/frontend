@@ -43,9 +43,11 @@ export const updateBookCover = async (bookId, imageUrl) => {
         coverImageUrl: imageUrl,
       }),
     });
+    if(!res.ok) throw new Error("표지 저장 실패");
     return await res.json();
   } catch (err) {
     console.error("updateBookCover 에러:", err);
+    throw err;
   }
 };
 
@@ -118,6 +120,7 @@ export async function likeBook(bookId, likes){
     return await res.json();
   } catch (err) {
     console.error("likeBook 에러:", err);
+    throw err;
   }
 }
 

@@ -17,7 +17,7 @@ function Navbar() {
       <Toolbar
         sx={{ justifyContent: "center", position: "relative", px: "40px" }}
       >
-        <Link to='/' style={{ textDecoration: "none" }}>
+        <Link to='/books' style={{ textDecoration: "none" }}>
           <Typography
             variant='body1'
             sx={{
@@ -38,7 +38,7 @@ function Navbar() {
         >
           <Button
             component={Link}
-            to='/'
+            to='/books'
             variant='outlined'
             size='small'
             startIcon={<MenuBookIcon />}

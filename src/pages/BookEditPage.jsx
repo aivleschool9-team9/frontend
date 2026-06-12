@@ -122,7 +122,7 @@ function BookEditPage() {
         try {
           imageUrl = await uploadCoverImage(imageUrl);
         } catch (err) {
-          console.log("표지 이미지 업로드 실패:", err);
+          console.error("표지 이미지 업로드 실패:", err);
           alert("표지 이미지 업로드에 실패했습니다.");
           return;
         }
