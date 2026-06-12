@@ -183,7 +183,7 @@ function BookListPage() {
   // "좋아요한 도서" 정렬이면 좋아요한 책만, 아니면 전체 books
   const likedFilteredBooks =
     sortOrder === "liked"
-      ? books.filter((book) => likedIds.includes(String(book.id))) // ← filterdBooks → books
+      ? books.filter((book) => likedIds.includes(String(book.id))) 
       : books;
 
   // 정렬 적용 (AI 검색 활성화 시 유사도 높은 순 우선)

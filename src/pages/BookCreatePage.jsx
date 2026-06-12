@@ -210,7 +210,7 @@ function BookCreatePage() {
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1.5, mt: 2 }}>
               <Button
                 variant="outlined"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/books")}
                 startIcon={<CancelIcon />}
                 sx={{
                   borderColor: "#ead7b1",
